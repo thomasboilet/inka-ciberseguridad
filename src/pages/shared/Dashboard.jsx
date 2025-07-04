@@ -1,36 +1,39 @@
+// src/shared/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { obtenerVulnerabilidades } from "../../services/vulnerabilidadesService";
 import { Table, Button, Form, Row, Col } from "react-bootstrap";
 
-export default function AdminDashboard() {
+export default function Dashboard({ role = "cliente" }) {
   const [vulnerabilidades, setVulnerabilidades] = useState([]);
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroRiesgo, setFiltroRiesgo] = useState("");
   const [filtroFecha, setFiltroFecha] = useState("");
   const navigate = useNavigate();
 
+  const readOnly = role === "cliente";
+
   useEffect(() => {
-    const cargarDatos = async () => {
+    (async () => {
       const datos = await obtenerVulnerabilidades();
       setVulnerabilidades(datos);
-    };
-    cargarDatos();
+    })();
   }, []);
 
-  const filtrarVulnerabilidades = () => {
-    return vulnerabilidades.filter((v) => {
-      const coincideTipo = filtroTipo === "" || v.tipo.toLowerCase() === filtroTipo.toLowerCase();
-      const coincideRiesgo = filtroRiesgo === "" || v.riesgo.toLowerCase() === filtroRiesgo.toLowerCase();
-      const coincideFecha =
-        filtroFecha === "" || new Date(v.fechaDeteccion).toISOString().split("T")[0] === filtroFecha;
-      return coincideTipo && coincideRiesgo && coincideFecha;
-    });
-  };
+  const filtradas = vulnerabilidades.filter((v) => {
+    const coincideTipo   = !filtroTipo   || v.tipo.toLowerCase() === filtroTipo.toLowerCase();
+    const coincideRiesgo = !filtroRiesgo || v.riesgo.toLowerCase() === filtroRiesgo.toLowerCase();
+    const coincideFecha  =
+      !filtroFecha ||
+      new Date(v.fechaDeteccion).toISOString().split("T")[0] === filtroFecha;
+    return coincideTipo && coincideRiesgo && coincideFecha;
+  });
 
   return (
     <div className="container mt-4">
-      <h2 className="text-center text-dark fw-bold mb-4">INKA - Seguridad Cibernética Empresarial</h2>
+      <h2 className="text-center text-dark fw-bold mb-4">
+        INKA&nbsp;– Seguridad Cibernética Empresarial
+      </h2>
 
       <Row className="mb-4 g-3">
         <Col md={4}>
@@ -70,14 +73,14 @@ export default function AdminDashboard() {
           </tr>
         </thead>
         <tbody>
-          {filtrarVulnerabilidades().length === 0 ? (
+          {filtradas.length === 0 ? (
             <tr>
               <td colSpan="5" className="text-center text-muted">
                 No hay vulnerabilidades que coincidan con los filtros.
               </td>
             </tr>
           ) : (
-            filtrarVulnerabilidades().map((v) => (
+            filtradas.map((v) => (
               <tr key={v.id}>
                 <td>{v.nombre}</td>
                 <td>{v.tipo}</td>
@@ -87,7 +90,11 @@ export default function AdminDashboard() {
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => navigate(`/admin/vulnerabilidad/${v.id}`)}
+                    onClick={() =>
+                      navigate(
+                        `${role === "cliente" ? "/cliente" : "/admin"}/vulnerabilidad/${v.id}`
+                      )
+                    }
                   >
                     Ver Detalle
                   </Button>
@@ -100,3 +107,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

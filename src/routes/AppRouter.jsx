@@ -1,40 +1,48 @@
 // src/routes/AppRouter.jsx
 import { Routes, Route } from "react-router-dom";
-import Login from "../pages/Login";
+import Login    from "../pages/Login";
 import Register from "../pages/Register";
 import ProtectedByRole from "./ProtectedByRole";
 
-// Dashboards
-import AdminLayout from "../components/admin/layout/AdminLayout";
-import AdminDashboard from "../pages/admin/AdminDashboard";
-import ClienteDashboard from "../pages/cliente/ClienteDashboard";
-import DetalleVulnerabilidadPage from "../pages/admin/DetalleVulnerabilidadPage";
+/* ───── Layouts ───── */
+import AdminLayout   from "../components/admin/layout/AdminLayout";
+import ClienteLayout from "../components/cliente/layout/ClienteLayout";
 
-// CRUD de Vulnerabilidades
-import CrudVulnerabilidades from "../pages/admin/CrudVulnerabilidades";
-import CrearVulnerabilidad from "../pages/admin/CrearVulnerabilidad";
-import EditarVulnerabilidad from "../pages/admin/EditarVulnerabilidad";
+/* ───── Vistas compartidas ───── */
+import Dashboard from "../pages/shared/Dashboard";
+
+/* ───── Admin / Analista ───── */
+import DetalleVulnerabilidadPage from "../pages/admin/DetalleVulnerabilidadPage";
+import CrudVulnerabilidades      from "../pages/admin/CrudVulnerabilidades";
+import CrearVulnerabilidad       from "../pages/admin/CrearVulnerabilidad";
+import EditarVulnerabilidad      from "../pages/admin/EditarVulnerabilidad";
 
 export default function AppRouter() {
   return (
     <Routes>
-      {/* Rutas públicas */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Login />} />
+      {/* ─────────── RUTAS PÚBLICAS ─────────── */}
+      <Route path="/"        element={<Login />} />
+      <Route path="/login"   element={<Login />} />
       <Route path="/registro" element={<Register />} />
       {/* <Route path="/recuperar" element={<RecuperarContraseña />} /> */}
 
-      {/* Rutas protegidas por rol: Cliente */}
+      {/* ─────────── CLIENTE ─────────── */}
       <Route
-        path="/cliente/dashboard"
+        path="/cliente"
         element={
           <ProtectedByRole allowed={["cliente"]}>
-            <ClienteDashboard />
+            <ClienteLayout />
           </ProtectedByRole>
         }
-      />
+      >
+        <Route
+          path="dashboard"
+          element={<Dashboard role="cliente" />}
+        />
+        <Route path="vulnerabilidad/:id" element={<DetalleVulnerabilidadPage />} />
+      </Route>
 
-      {/* Rutas protegidas por rol: Admin y Analista */}
+      {/* ─────────── ADMIN / ANALISTA ─────────── */}
       <Route
         path="/admin"
         element={
@@ -43,10 +51,18 @@ export default function AppRouter() {
           </ProtectedByRole>
         }
       >
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="crud" element={<CrudVulnerabilidades />} />
-        <Route path="crear" element={<CrearVulnerabilidad />} />
-        <Route path="editar/:id" element={<EditarVulnerabilidad />} />
+        {/* Dashboard reutiliza el mismo componente, pero con rol de admin */}
+        <Route
+          path="dashboard"
+          element={<Dashboard role="admin" />}
+        />
+
+        {/* CRUD */}
+        <Route path="crud"          element={<CrudVulnerabilidades />} />
+        <Route path="crear"         element={<CrearVulnerabilidad />} />
+        <Route path="editar/:id"    element={<EditarVulnerabilidad />} />
+
+        {/* Detalle */}
         <Route path="vulnerabilidad/:id" element={<DetalleVulnerabilidadPage />} />
       </Route>
     </Routes>
