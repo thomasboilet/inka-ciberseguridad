@@ -61,11 +61,15 @@ export const actualizarVulnerabilidad = async (id, data) => {
     evidenciasUrls = [...evidenciasUrls, ...nuevasUrls];
   }
 
+  // Eliminar nuevasEvidencias del objeto antes de actualizar
+  const { nuevasEvidencias, evidenciasExistentes, ...resto } = data;
+
   return updateDoc(doc(db, "vulnerabilidades", id), {
-    ...data,
+    ...resto,
     evidencias: evidenciasUrls
   });
 };
+
 
 export const eliminarVulnerabilidad = async (id) => {
   await deleteDoc(doc(db, "vulnerabilidades", id));
