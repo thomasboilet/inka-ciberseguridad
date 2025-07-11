@@ -1,8 +1,8 @@
 // src/shared/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-#import { obtenerVulnerabilidades } from "../../services/vulnerabilidadesService";
-#import { Table, Button, Form, Row, Col } from "react-bootstrap";
+import { obtenerVulnerabilidades } from "../../services/vulnerabilidadesService";
+import { Table, Button, Form, Row, Col } from "react-bootstrap";
 
 export default function Dashboard({ role = "cliente" }) {
   const [vulnerabilidades, setVulnerabilidades] = useState([]);
